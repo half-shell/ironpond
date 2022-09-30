@@ -1,0 +1,82 @@
+* Idées
++ Un code couleur pour indiquer la contraintes d'utilisation de la carte (avant / pendant / après le tour de l'adversaire)
+  - Comment faire pour ne pas propager l'information à l'adversaire que le joueur a un carte qui peut être jouée pendant son tour? Pas de solution possible
++ Est=ce que le texte a besoin d'être présent sur la carte, ou bien est-ce qu'on peut s'en émanciper?
++ Les cartes jouées en fin de tour pourrait être mise de côté n'importe quand pendant le tour, est s'activent lorssque le joueur met fin à son tour
+
+* Cartes à ignorer
++ Chrono
++ Super gang
++ Camouflet
++ Kidnapping
+
+
+* "Specifications"
+** Protocols / tech stack
++ Move communication made with PGN ([[http://www.saremba.de/chessgml/standards/pgn/pgn-complete.htm#c20][PNG specs]])
++ Importing games when provided with a game state (PNG + extension?)
+  - Extensionn *SHOULD* consist of the card number, followed by some kind of metadata that is needed for the card to make sense
++ stormlang & ironpond as clojure libraries targeting clojure and clojurescript using conditional readers
++ Payloads as plain old text file (.pgnx format eventually)
++ Env vars:
+  + REDIS_HOST (if we wanna host a game state in some kind of cache in order to evaluate client/server game state)
+
+
+** Game flow
++ Cards can be played at different times (before / during / after a player's turn / at the end / beginning of a player's turn)
++ Cards can change the nature of a piece for more than a turn. Piece state?
++ Pieces can end up being played several times, without the input of the other player (e.g. bishop bouncing around) under certain conditions
++ Pieces can have different rules for how they "take" and how they "move"
++ Several pieces can be played on the same turn
++ Pieces can change sides
++ Cards can protect pieces from being taken (this'll need visual indication)
++ Cards can just "take out" pieces from the board
++ Cards can swap pieces positions
++ Pieces can "take out" another from the same team
++ Stack pile can be peeked at and picked from
++ Pieces can be frozen under certain conditions
++ Cards can be canceled
++ Conditions can be based on previously made moves (e.g. did this piece take any other one on the turn before?)
++ Cards can limit the pieces a player is able to play on his next turn
++ Cards can enable trading cards in between player's decks
++ A square on the board can be trapped (square-based state management)
++ Pieces can leave the board and come back for a turn. That piece then has to be the first action on the player's next turn.
++ A piece can end up being "neutral" (belonging to both the players and can take both white and black pieces)
+
+** Features
+*** Front
+**** Logging
+**** Movement pre-visualization
+
+*** Back
+**** Game phases
+**** Logging
+**** Shuffling
+**** Secret handling between parties (cards in hand)
+
+*** Ironpond lib
+**** Pseudo random number generator base en game state (board / hands / deck / maybe even a broad enough timestamp) => Computation of this needs specs so it can be
+**** Parsing / formatting of the ~stormlang~ grammar
+
+** Stormlang
++ Define a grammar for the ~stl~ format.
+  - M: Move
+  - C: Card played by the player whose turn it is
+  - D: Card played by the other player
+
+#+begin_src
+MC -> MCD
+CM -> CMD
+C -> CM
+M -> MC
+S -> M
+S -> C // When a card replaces a move
+#+end_src>
+
+* Design
++ Since pieces can change of nature, that means that a visual indication needs to be made on the board.
++ Carts instructions should be rephrased, and ideally translated
++
+
+* Long term
++ Is making some kind of specifications for a PNG extension format something feasable? Would it be used to communicate moves network wise?
